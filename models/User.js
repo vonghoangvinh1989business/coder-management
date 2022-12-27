@@ -10,6 +10,9 @@ const userSchema = mongoose.Schema(
   }
 );
 
+// create text index for all fields
+userSchema.index({ "$**": "text" });
+
 // create User model and export
-const User = mongoose.Model("User", userSchema);
+const User = mongoose.model("User", userSchema);
 module.exports = User;

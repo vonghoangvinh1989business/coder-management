@@ -5,20 +5,19 @@ const userController = {};
 const _ = require("lodash");
 
 // api to get user by id
-// TODO: implementing, should implement isDeleted for user --> think about that tomorrow
 userController.getUserById = async (req, res, next) => {
   try {
     // get userId from params
     const { id: userId } = req.params;
 
     // find user by id
-    const foundUser = await User.findById(userId);
+    const foundUser = await User.findOne({ _id: userId, isDeleted: false });
 
     if (!foundUser) {
       throw new AppError(
-        401,
-        `User With Id ${userId} Not Found.`,
-        `Get User By Id ${userId}  Failed.`
+        500,
+        `User With Id ${userId} Not Found Or User Was Deleted.`,
+        `Get User By Id ${userId} Failed.`
       );
     }
 
@@ -43,7 +42,7 @@ userController.getUsers = async (req, res, next) => {
     filterKeys.forEach((key) => {
       if (!allowedFilter.includes(key)) {
         throw new AppError(
-          401,
+          400,
           `Query key [${key}] is not allowed`,
           "Get User List Failed."
         );
@@ -64,6 +63,7 @@ userController.getUsers = async (req, res, next) => {
       // query to get total pages
       totalPages = await User.find({
         $text: { $search: filterValue },
+        isDeleted: false,
       })
         .sort({ _id: -1 })
         .count();
@@ -72,17 +72,20 @@ userController.getUsers = async (req, res, next) => {
       // query to get list of users with search filter
       listOfUsers = await User.find({
         $text: { $search: filterValue },
+        isDeleted: false,
       })
         .sort({ _id: -1 })
         .skip(offset)
         .limit(limit);
     } else {
       // query to get total pages
-      totalPages = await User.find().sort({ _id: -1 }).count();
+      totalPages = await User.find({ isDeleted: false })
+        .sort({ _id: -1 })
+        .count();
       totalPages = Math.ceil(totalPages / limit);
 
       // query to get list of users based on page and limit
-      listOfUsers = await User.find()
+      listOfUsers = await User.find({ isDeleted: false })
         .sort({ _id: -1 })
         .skip(offset)
         .limit(limit);

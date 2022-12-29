@@ -23,7 +23,7 @@ const userValidator = [
       if (user) {
         throw new AppError(
           400,
-          "Name value is already exist. You should choose another name.",
+          "Name value is already existed. Choose another name.",
           "Create User Failed."
         );
       }

@@ -1,8 +1,8 @@
 const { sendResponse, AppError } = require("../helpers/utils.js");
+const _ = require("lodash");
 const mongoose = require("mongoose");
 const User = require("../models/User");
 const userController = {};
-const _ = require("lodash");
 
 // api to get user by id
 userController.getUserById = async (req, res, next) => {

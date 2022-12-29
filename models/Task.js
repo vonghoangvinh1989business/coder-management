@@ -18,6 +18,9 @@ const taskSchema = mongoose.Schema(
   }
 );
 
+// create text index for all fields
+taskSchema.index({ "$**": "text" });
+
 // create Task model and export
 const Task = mongoose.model("Task", taskSchema);
 module.exports = Task;

@@ -19,7 +19,8 @@ const {
  * @route GET api/users
  * @description Get a list of users
  * @access private
- * @allowedQueries: name
+ * @allowedQueries: page, limit, search
+ * search by "name, role"
  */
 router.get("/", getAllUsersValidator, getAllUsersValidatorResult, getUsers);
 

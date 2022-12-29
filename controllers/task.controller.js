@@ -4,6 +4,16 @@ const _ = require("lodash");
 const Task = require("../models/Task");
 const taskController = {};
 
+// TODO: implementing
+// api to get a list of tasks
+taskController.getTasks = async (req, res, next) => {
+  try {
+    res.send("implementing...");
+  } catch (error) {
+    next(error);
+  }
+};
+
 // api to create a new task
 taskController.createTask = async (req, res, next) => {
   try {

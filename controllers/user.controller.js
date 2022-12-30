@@ -65,7 +65,7 @@ userController.getUsers = async (req, res, next) => {
         $text: { $search: filterValue },
         isDeleted: false,
       })
-        .sort({ _id: -1 })
+        .sort({ createdAt: -1 })
         .count();
       totalPages = Math.ceil(totalPages / limit);
 
@@ -74,19 +74,19 @@ userController.getUsers = async (req, res, next) => {
         $text: { $search: filterValue },
         isDeleted: false,
       })
-        .sort({ _id: -1 })
+        .sort({ createdAt: -1 })
         .skip(offset)
         .limit(limit);
     } else {
       // query to get total pages
       totalPages = await User.find({ isDeleted: false })
-        .sort({ _id: -1 })
+        .sort({ createdAt: -1 })
         .count();
       totalPages = Math.ceil(totalPages / limit);
 
       // query to get list of users based on page and limit
       listOfUsers = await User.find({ isDeleted: false })
-        .sort({ _id: -1 })
+        .sort({ createdAt: -1 })
         .skip(offset)
         .limit(limit);
     }

@@ -4,11 +4,127 @@ const _ = require("lodash");
 const Task = require("../models/Task");
 const taskController = {};
 
-// TODO: implementing
 // api to get a list of tasks
 taskController.getTasks = async (req, res, next) => {
   try {
-    res.send("implementing...");
+    const allowedFilter = [
+      "page",
+      "limit",
+      "status",
+      "search",
+      "sort_by",
+      "order_by",
+    ];
+
+    let { page, limit, ...filterQuery } = req.query;
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 10;
+
+    const filterKeys = Object.keys(filterQuery);
+    filterKeys.forEach((key) => {
+      if (!allowedFilter.includes(key)) {
+        throw new AppError(
+          400,
+          `Query key [${key}] is not allowed`,
+          "Get User List Failed."
+        );
+      }
+      if (!filterQuery[key]) delete filterQuery[key];
+    });
+
+    // number of items skip for selection
+    let offset = limit * (page - 1);
+
+    // define variables to send data responses
+    let totalPages = 0;
+    let listOfTasks = [];
+
+    if (filterKeys.length) {
+      // define query object to build query
+      let queries = {};
+
+      // always to get tasks which exist
+      queries["isDeleted"] = false;
+
+      // filter with status value
+      if (filterQuery["status"]) {
+        queries["status"] = filterQuery["status"];
+      }
+
+      // filter with search value (full text search, not fuzzy)
+      if (filterQuery["search"]) {
+        let searchValue = _.toLower(filterQuery["search"].trim());
+        queries["$text"] = { $search: searchValue };
+      }
+
+      // try to get sort_by and order_by
+      let sortByValue = filterQuery["sort_by"] || "";
+      let orderByValue = filterQuery["order_by"] || "";
+
+      // order_by value just have meaning when it goes along with sort_by value
+      if (sortByValue) {
+        // define sortObject
+        let sortObject = {};
+
+        if (orderByValue === "asc") {
+          sortObject[sortByValue] = 1;
+        } else if (orderByValue === "desc") {
+          sortObject[sortByValue] = -1;
+        } else {
+          // default sort by desc
+          sortObject[sortByValue] = -1;
+        }
+
+        // query to get total pages
+        totalPages = await Task.find(queries).sort(sortObject).count();
+        totalPages = Math.ceil(totalPages / limit);
+
+        // query to get list of tasks based on page and limit, and filters and sort
+        listOfTasks = await Task.find(queries)
+          .sort(sortObject)
+          .skip(offset)
+          .limit(limit);
+      } else {
+        // query to get total pages
+        totalPages = await Task.find(queries).sort({ createdAt: -1 }).count();
+        totalPages = Math.ceil(totalPages / limit);
+
+        // query to get list of tasks based on page and limit, and filters
+        listOfTasks = await Task.find(queries)
+          .sort({ createdAt: -1 })
+          .skip(offset)
+          .limit(limit);
+      }
+    } else {
+      // query to get total pages
+      totalPages = await Task.find({ isDeleted: false })
+        .sort({ createdAt: -1 })
+        .count();
+      totalPages = Math.ceil(totalPages / limit);
+
+      // query to get list of tasks based on page and limit
+      listOfTasks = await Task.find({ isDeleted: false })
+        .sort({ createdAt: -1 })
+        .skip(offset)
+        .limit(limit);
+    }
+
+    // create response data object
+    const responseData = {
+      tasks: listOfTasks,
+      page: page,
+      totalPages,
+    };
+
+    // send response
+    sendResponse(
+      res,
+      200,
+      true,
+      responseData,
+      null,
+      "Get Task List Successfully!"
+    );
   } catch (error) {
     next(error);
   }

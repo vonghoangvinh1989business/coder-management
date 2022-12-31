@@ -1,13 +1,19 @@
 const express = require("express");
 const router = express.Router();
 
-const { createTask, getTasks } = require("../controllers/task.controller");
+const {
+  createTask,
+  getTasks,
+  getTaskById,
+} = require("../controllers/task.controller");
 
 const {
   createTaskValidator,
   createTaskValidatorResult,
   getTasksValidator,
   getTasksValidatorResult,
+  getTaskByIdValidator,
+  getTaskByIdValidatorResult,
 } = require("../validators/taskValidator");
 
 /**
@@ -20,6 +26,18 @@ const {
  * order by "asc, desc"
  */
 router.get("/", getTasksValidator, getTasksValidatorResult, getTasks);
+
+/**
+ * @route GET api/tasks/:id
+ * @description Get a single task by id
+ * @access public
+ */
+router.get(
+  "/:id",
+  getTaskByIdValidator,
+  getTaskByIdValidatorResult,
+  getTaskById
+);
 
 /**
  * @route POST api/tasks

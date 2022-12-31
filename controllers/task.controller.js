@@ -4,6 +4,30 @@ const _ = require("lodash");
 const Task = require("../models/Task");
 const taskController = {};
 
+// api to get task by id
+taskController.getTaskById = async (req, res, next) => {
+  try {
+    // get taskId from params
+    const { id: taskId } = req.params;
+
+    // find task by id
+    const foundTask = await Task.findOne({ _id: taskId, isDeleted: false });
+
+    if (!foundTask) {
+      throw new AppError(
+        500,
+        `Task With Id ${taskId} Not Found Or Task Was Deleted.`,
+        `Get Task By Id ${taskId} Failed.`
+      );
+    }
+
+    // send response
+    sendResponse(res, 200, true, foundTask, null, `Get Task Successfully.`);
+  } catch (error) {
+    next(error);
+  }
+};
+
 // api to get a list of tasks
 taskController.getTasks = async (req, res, next) => {
   try {

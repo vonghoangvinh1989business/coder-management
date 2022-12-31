@@ -98,10 +98,33 @@ const getTasksValidatorResult = (req, res, next) => {
   next();
 };
 
+// validate for get task by id
+const getTaskByIdValidator = [
+  param("id")
+    .trim()
+    .escape()
+    .isMongoId()
+    .withMessage("Task Id must be valid Mongo Object Id"),
+];
+
+const getTaskByIdValidatorResult = (req, res, next) => {
+  const errors = validationResult(req);
+  const hasError = !errors.isEmpty();
+
+  if (hasError) {
+    const errorMessage = errors.array()[0].msg;
+    throw new AppError(400, errorMessage, "Get Task By Id Failed.");
+  }
+
+  next();
+};
+
 // export
 module.exports = {
   createTaskValidator,
   createTaskValidatorResult,
   getTasksValidator,
   getTasksValidatorResult,
+  getTaskByIdValidator,
+  getTaskByIdValidatorResult,
 };

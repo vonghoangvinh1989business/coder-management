@@ -54,7 +54,10 @@ taskController.updateStatus = async (req, res, next) => {
     const { status } = req.body;
 
     // find task by id
-    let foundTask = await Task.findOne({ _id: taskId, isDeleted: false });
+    let foundTask = await Task.findOne({
+      _id: taskId,
+      isDeleted: false,
+    }).populate("assignee");
 
     if (!foundTask) {
       throw new AppError(
@@ -130,7 +133,10 @@ taskController.updateAssignee = async (req, res, next) => {
     }
 
     // find task by id
-    let foundTask = await Task.findOne({ _id: taskId, isDeleted: false });
+    let foundTask = await Task.findOne({
+      _id: taskId,
+      isDeleted: false,
+    });
 
     if (!foundTask) {
       throw new AppError(
@@ -165,7 +171,10 @@ taskController.getTaskById = async (req, res, next) => {
     const { id: taskId } = req.params;
 
     // find task by id
-    const foundTask = await Task.findOne({ _id: taskId, isDeleted: false });
+    const foundTask = await Task.findOne({
+      _id: taskId,
+      isDeleted: false,
+    }).populate("assignee");
 
     if (!foundTask) {
       throw new AppError(
@@ -259,6 +268,7 @@ taskController.getTasks = async (req, res, next) => {
 
         // query to get list of tasks based on page and limit, and filters and sort
         listOfTasks = await Task.find(queries)
+          .populate("assignee")
           .sort(sortObject)
           .skip(offset)
           .limit(limit);
@@ -269,6 +279,7 @@ taskController.getTasks = async (req, res, next) => {
 
         // query to get list of tasks based on page and limit, and filters
         listOfTasks = await Task.find(queries)
+          .populate("assignee")
           .sort({ createdAt: -1 })
           .skip(offset)
           .limit(limit);
@@ -282,6 +293,7 @@ taskController.getTasks = async (req, res, next) => {
 
       // query to get list of tasks based on page and limit
       listOfTasks = await Task.find({ isDeleted: false })
+        .populate("assignee")
         .sort({ createdAt: -1 })
         .skip(offset)
         .limit(limit);

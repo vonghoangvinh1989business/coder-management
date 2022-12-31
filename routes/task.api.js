@@ -43,7 +43,7 @@ router.get("/", getTasksValidator, getTasksValidatorResult, getTasks);
  * @requiredBody: status (only accept: pending/working/review/done/archive)
  */
 router.put(
-  "/:id",
+  "/status/:id",
   updateStatusValidator,
   updateStatusValidatorResult,
   updateStatus

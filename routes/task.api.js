@@ -5,6 +5,7 @@ const {
   createTask,
   getTasks,
   getTaskById,
+  updateAssignee,
 } = require("../controllers/task.controller");
 
 const {
@@ -14,6 +15,8 @@ const {
   getTasksValidatorResult,
   getTaskByIdValidator,
   getTaskByIdValidatorResult,
+  updateAssigneeValidator,
+  updateAssigneeValidatorResult,
 } = require("../validators/taskValidator");
 
 /**
@@ -26,6 +29,19 @@ const {
  * order by "asc, desc"
  */
 router.get("/", getTasksValidator, getTasksValidatorResult, getTasks);
+
+/**
+ * @route PUT api/tasks
+ * @description Assign a user to a specific task by user id
+ * @access public
+ * @requiredBody: assignee (accept: null value or mongo Object Id)
+ */
+router.put(
+  "/:id",
+  updateAssigneeValidator,
+  updateAssigneeValidatorResult,
+  updateAssignee
+);
 
 /**
  * @route GET api/tasks/:id

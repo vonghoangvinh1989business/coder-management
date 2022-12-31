@@ -1,7 +1,13 @@
 const { AppError } = require("../helpers/utils");
 const Task = require("../models/Task");
 const _ = require("lodash");
-const { query, param, check, validationResult } = require("express-validator");
+const {
+  body,
+  query,
+  param,
+  check,
+  validationResult,
+} = require("express-validator");
 
 // validate for create task
 const createTaskValidator = [
@@ -119,6 +125,28 @@ const getTaskByIdValidatorResult = (req, res, next) => {
   next();
 };
 
+// validate for add user to a specific task
+const updateAssigneeValidator = [
+  param("id")
+    .trim()
+    .escape()
+    .isMongoId()
+    .withMessage("Task Id must be valid Mongo Object Id"),
+  body("assignee").trim().escape(),
+];
+
+const updateAssigneeValidatorResult = (req, res, next) => {
+  const errors = validationResult(req);
+  const hasError = !errors.isEmpty();
+
+  if (hasError) {
+    const errorMessage = errors.array()[0].msg;
+    throw new AppError(400, errorMessage, "Update Assignee To Task Failed.");
+  }
+
+  next();
+};
+
 // export
 module.exports = {
   createTaskValidator,
@@ -127,4 +155,6 @@ module.exports = {
   getTasksValidatorResult,
   getTaskByIdValidator,
   getTaskByIdValidatorResult,
+  updateAssigneeValidator,
+  updateAssigneeValidatorResult,
 };

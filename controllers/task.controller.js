@@ -2,7 +2,72 @@ const { sendResponse, AppError } = require("../helpers/utils.js");
 const mongoose = require("mongoose");
 const _ = require("lodash");
 const Task = require("../models/Task");
+const User = require("../models/User");
 const taskController = {};
+
+// api to assign/unassign a user to a task
+taskController.updateAssignee = async (req, res, next) => {
+  try {
+    // get taskId from params
+    const { id: taskId } = req.params;
+    const { assignee } = req.body;
+
+    let assigneeValue = "";
+    if (assignee) {
+      if (mongoose.Types.ObjectId.isValid(assignee)) {
+        // find appropriate user with assignee value
+        const foundAssignee = await User.findOne({
+          _id: assignee,
+          isDeleted: false,
+        });
+
+        if (!foundAssignee) {
+          throw new AppError(
+            500,
+            `Assignee With Id ${assignee} Not Found Or Assignee Was Deleted.`,
+            `Update Assignee To Task With Id ${taskId} Failed.`
+          );
+        }
+        assigneeValue = assignee;
+      } else {
+        throw new AppError(
+          500,
+          `Assignee Id must be valid Mongo Object Id`,
+          `Update Assignee To Task With Id ${taskId} Failed.`
+        );
+      }
+    } else {
+      assigneeValue = null;
+    }
+
+    // find task by id
+    let foundTask = await Task.findOne({ _id: taskId, isDeleted: false });
+
+    if (!foundTask) {
+      throw new AppError(
+        500,
+        `Task With Id ${taskId} Not Found Or Task Was Deleted.`,
+        `Update Assignee To Task With Id ${taskId} Failed.`
+      );
+    }
+
+    // add assignee to task
+    foundTask.assignee = assigneeValue;
+    foundTask = await foundTask.save();
+
+    // send response
+    sendResponse(
+      res,
+      200,
+      true,
+      foundTask,
+      null,
+      `Update Assignee To Task With Id ${taskId} Successfully.`
+    );
+  } catch (error) {
+    next(error);
+  }
+};
 
 // api to get task by id
 taskController.getTaskById = async (req, res, next) => {

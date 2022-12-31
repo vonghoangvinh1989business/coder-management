@@ -171,7 +171,29 @@ const updateStatusValidatorResult = (req, res, next) => {
 
   if (hasError) {
     const errorMessage = errors.array()[0].msg;
-    throw new AppError(400, errorMessage, "Update Assignee To Task Failed.");
+    throw new AppError(400, errorMessage, "Update Status To Task Failed.");
+  }
+
+  next();
+};
+
+// validate for deleting task
+const deleteTaskValidator = [
+  param("id")
+    .trim()
+    .escape()
+    .isMongoId()
+    .withMessage("Task Id must be valid Mongo Object Id")
+    .bail(),
+];
+
+const deleteTaskValidatorResult = (req, res, next) => {
+  const errors = validationResult(req);
+  const hasError = !errors.isEmpty();
+
+  if (hasError) {
+    const errorMessage = errors.array()[0].msg;
+    throw new AppError(400, errorMessage, "Delete Task Failed.");
   }
 
   next();
@@ -189,4 +211,6 @@ module.exports = {
   updateAssigneeValidatorResult,
   updateStatusValidator,
   updateStatusValidatorResult,
+  deleteTaskValidator,
+  deleteTaskValidatorResult,
 };

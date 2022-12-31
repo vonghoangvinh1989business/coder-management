@@ -5,6 +5,47 @@ const Task = require("../models/Task");
 const User = require("../models/User");
 const taskController = {};
 
+// api to delete a task
+taskController.deleteTask = async (req, res, next) => {
+  try {
+    // get taskId from params
+    const { id: taskId } = req.params;
+
+    // find task by id
+    let foundTask = await Task.findOne({ _id: taskId, isDeleted: false });
+
+    if (!foundTask) {
+      throw new AppError(
+        500,
+        `Task With Id ${taskId} Not Found Or Task Was Deleted.`,
+        `Delete Task With Id ${taskId} Failed.`
+      );
+    }
+
+    // options allow you to return latest update version of data
+    const options = { new: true };
+
+    // doing the soft delete mean updated isDelete to true
+    const deletedTask = await Task.findByIdAndUpdate(
+      taskId,
+      { isDeleted: true },
+      options
+    );
+
+    // send response
+    sendResponse(
+      res,
+      200,
+      true,
+      deletedTask,
+      null,
+      "Delete Task Successfully."
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
 // api to update status of a task
 taskController.updateStatus = async (req, res, next) => {
   try {

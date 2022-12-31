@@ -7,6 +7,7 @@ const {
   getTaskById,
   updateAssignee,
   updateStatus,
+  deleteTask,
 } = require("../controllers/task.controller");
 
 const {
@@ -20,6 +21,8 @@ const {
   updateAssigneeValidatorResult,
   updateStatusValidator,
   updateStatusValidatorResult,
+  deleteTaskValidator,
+  deleteTaskValidatorResult,
 } = require("../validators/taskValidator");
 
 /**
@@ -78,6 +81,18 @@ router.get(
  * @requiredBody: name, description
  */
 router.post("/", createTaskValidator, createTaskValidatorResult, createTask);
+
+/**
+ * @route DELETE api/tasks
+ * @description Delete a task by id
+ * @access public
+ */
+router.delete(
+  "/:id",
+  deleteTaskValidator,
+  deleteTaskValidatorResult,
+  deleteTask
+);
 
 // export
 module.exports = router;

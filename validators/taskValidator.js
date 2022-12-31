@@ -147,6 +147,36 @@ const updateAssigneeValidatorResult = (req, res, next) => {
   next();
 };
 
+// validator for update status of a specific task
+const updateStatusValidator = [
+  param("id")
+    .trim()
+    .escape()
+    .isMongoId()
+    .withMessage("Task Id must be valid Mongo Object Id")
+    .bail(),
+  body("status")
+    .trim()
+    .escape()
+    .isIn(["pending", "working", "review", "done", "archive"])
+    .withMessage(
+      "Status value must belong to one of these values: [pending, working, review, done, archive]."
+    )
+    .bail(),
+];
+
+const updateStatusValidatorResult = (req, res, next) => {
+  const errors = validationResult(req);
+  const hasError = !errors.isEmpty();
+
+  if (hasError) {
+    const errorMessage = errors.array()[0].msg;
+    throw new AppError(400, errorMessage, "Update Assignee To Task Failed.");
+  }
+
+  next();
+};
+
 // export
 module.exports = {
   createTaskValidator,
@@ -157,4 +187,6 @@ module.exports = {
   getTaskByIdValidatorResult,
   updateAssigneeValidator,
   updateAssigneeValidatorResult,
+  updateStatusValidator,
+  updateStatusValidatorResult,
 };

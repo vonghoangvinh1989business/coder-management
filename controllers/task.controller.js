@@ -5,6 +5,54 @@ const Task = require("../models/Task");
 const User = require("../models/User");
 const taskController = {};
 
+// api to update status of a task
+taskController.updateStatus = async (req, res, next) => {
+  try {
+    // get taskId from params
+    const { id: taskId } = req.params;
+    const { status } = req.body;
+
+    // find task by id
+    let foundTask = await Task.findOne({ _id: taskId, isDeleted: false });
+
+    if (!foundTask) {
+      throw new AppError(
+        500,
+        `Task With Id ${taskId} Not Found Or Task Was Deleted.`,
+        `Update Status To Task With Id ${taskId} Failed.`
+      );
+    }
+
+    // current status of found task
+    let currentStatus = foundTask.status;
+
+    // check logic when the status is set to done, it can’t be changed to other value except archive
+    if (currentStatus === "done" && status !== "archive") {
+      throw new AppError(
+        500,
+        `Current Status of task With Id ${taskId} is: [done]. This task only accept status [archive] to update.`,
+        `Update Status To Task With Id ${taskId} Failed.`
+      );
+    }
+
+    // update status to task
+    foundTask.status = status;
+    foundTask = await foundTask.save();
+
+    // send response
+    sendResponse(
+      res,
+      200,
+      true,
+      foundTask,
+      null,
+      `Update Status To Task With Id ${taskId} Successfully.`
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
 // api to assign/unassign a user to a task
 taskController.updateAssignee = async (req, res, next) => {
   try {

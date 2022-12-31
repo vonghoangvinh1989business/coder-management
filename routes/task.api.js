@@ -6,6 +6,7 @@ const {
   getTasks,
   getTaskById,
   updateAssignee,
+  updateStatus,
 } = require("../controllers/task.controller");
 
 const {
@@ -17,6 +18,8 @@ const {
   getTaskByIdValidatorResult,
   updateAssigneeValidator,
   updateAssigneeValidatorResult,
+  updateStatusValidator,
+  updateStatusValidatorResult,
 } = require("../validators/taskValidator");
 
 /**
@@ -29,6 +32,19 @@ const {
  * order by "asc, desc"
  */
 router.get("/", getTasksValidator, getTasksValidatorResult, getTasks);
+
+/**
+ * @route PUT api/tasks
+ * @description Update status of a task
+ * @access public
+ * @requiredBody: status (only accept: pending/working/review/done/archive)
+ */
+router.put(
+  "/:id",
+  updateStatusValidator,
+  updateStatusValidatorResult,
+  updateStatus
+);
 
 /**
  * @route PUT api/tasks

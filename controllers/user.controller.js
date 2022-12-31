@@ -2,7 +2,54 @@ const { sendResponse, AppError } = require("../helpers/utils.js");
 const _ = require("lodash");
 const mongoose = require("mongoose");
 const User = require("../models/User");
+const Task = require("../models/Task");
 const userController = {};
+
+// api to get all tasks belong to user id
+userController.getAllTasksByUserId = async (req, res, next) => {
+  try {
+    // get userId from params
+    const { id: userId } = req.params;
+
+    // find user by id
+    let foundUser = await User.findOne({
+      _id: userId,
+      isDeleted: false,
+    });
+
+    if (!foundUser) {
+      throw new AppError(
+        500,
+        `User With Id ${userId} Not Found Or User Was Deleted.`,
+        `Get All Tasks By User Id ${userId} Failed.`
+      );
+    }
+
+    // get all task belongs to userId
+    let listOfTasks = await Task.find({
+      assignee: userId,
+      isDeleted: false,
+    }).populate("assignee");
+
+    // create response data object
+    const responseData = {
+      tasks: listOfTasks,
+      user: foundUser,
+    };
+
+    // send response
+    sendResponse(
+      res,
+      200,
+      true,
+      responseData,
+      null,
+      "Get All Tasks By User Successfully!"
+    );
+  } catch (error) {
+    next(error);
+  }
+};
 
 // api to get user by id
 userController.getUserById = async (req, res, next) => {

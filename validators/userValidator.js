@@ -42,6 +42,27 @@ const userValidatorResult = (req, res, next) => {
   next();
 };
 
+// validate for getting all tasks by user id
+const getAllTasksByUserIdValidator = [
+  param("id")
+    .trim()
+    .escape()
+    .isMongoId()
+    .withMessage("User Id must be valid Mongo Object Id"),
+];
+
+const getAllTasksByUserIdValidatorResult = (req, res, next) => {
+  const errors = validationResult(req);
+  const hasError = !errors.isEmpty();
+
+  if (hasError) {
+    const errorMessage = errors.array()[0].msg;
+    throw new AppError(400, errorMessage, "Get All Tasks By User Id Failed.");
+  }
+
+  next();
+};
+
 // validate for getting user by id
 const getUserByIdValidator = [
   param("id")
@@ -106,4 +127,6 @@ module.exports = {
   getAllUsersValidatorResult,
   getUserByIdValidator,
   getUserByIdValidatorResult,
+  getAllTasksByUserIdValidator,
+  getAllTasksByUserIdValidatorResult,
 };

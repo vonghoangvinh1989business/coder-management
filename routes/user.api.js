@@ -4,6 +4,7 @@ const {
   createUser,
   getUsers,
   getUserById,
+  getAllTasksByUserId,
 } = require("../controllers/user.controller");
 
 const {
@@ -13,6 +14,8 @@ const {
   getAllUsersValidatorResult,
   getUserByIdValidator,
   getUserByIdValidatorResult,
+  getAllTasksByUserIdValidator,
+  getAllTasksByUserIdValidatorResult,
 } = require("../validators/userValidator");
 
 /**
@@ -23,6 +26,18 @@ const {
  * search by "name, role"
  */
 router.get("/", getAllUsersValidator, getAllUsersValidatorResult, getUsers);
+
+/**
+ * @route GET api/users/tasks/:id
+ * @description Get all tasks belong to user id
+ * @access public
+ */
+router.get(
+  "/tasks/:id",
+  getAllTasksByUserIdValidator,
+  getAllTasksByUserIdValidatorResult,
+  getAllTasksByUserId
+);
 
 /**
  * @route GET api/users/:id

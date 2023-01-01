@@ -81,7 +81,7 @@ taskController.updateStatus = async (req, res, next) => {
 
     // update status to task
     foundTask.status = status;
-    foundTask = await foundTask.save();
+    foundTask = await foundTask.save({ new: true });
 
     // send response
     sendResponse(
@@ -148,7 +148,7 @@ taskController.updateAssignee = async (req, res, next) => {
 
     // add assignee to task
     foundTask.assignee = assigneeValue;
-    foundTask = await foundTask.save();
+    foundTask = await foundTask.save({ new: true });
 
     // send response
     sendResponse(
